@@ -30,21 +30,32 @@ test("server-renders the Rubiolo Book Studio entry experience", async () => {
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
 });
 
-test("keeps the complete five-step conceptual flow in the client", async () => {
+test("keeps the complete six-step flow and editorial draft in the client", async () => {
   const [page, layout, packageJson] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  for (const label of ["Referencias", "Materiales", "Escenario", "Movilidad", "Composición"]) {
+  for (const label of ["Referencias", "Materiales", "Movilidad", "Contexto", "Información", "Composición"]) {
     assert.match(page, new RegExp(label));
   }
-  for (const shot of ["Portada comercial", "Tres cuartos", "Vista lateral", "Perspectiva aérea", "Detalle técnico", "En operación"]) {
-    assert.match(page, new RegExp(shot));
+  for (const capability of [
+    "Carrocería",
+    "material-sphere",
+    "Fotos del vehículo particular",
+    "Contextos complementarios",
+    "FUENTE DE VERDAD",
+    "ESTIMACIÓN DE GENERACIÓN",
+    "Vista previa PDF",
+    "REGENERAR ESTA PÁGINA",
+    "créditos",
+  ]) {
+    assert.match(page, new RegExp(capability));
   }
   assert.match(page, /setMode\("generating"\)/);
   assert.match(page, /setMode\("book"\)/);
+  assert.match(page, /setMode\("pdf"\)/);
   assert.match(layout, /summary_large_image/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   await access(new URL("../public/og.png", import.meta.url));
