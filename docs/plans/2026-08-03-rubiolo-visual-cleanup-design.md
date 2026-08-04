@@ -8,8 +8,9 @@ Reducir la repetición de marca en dos superficies principales para que la propu
 
 - Conservar la composición técnica azul, el acoplado y el plano CAD.
 - Eliminar de la imagen derecha toda palabra, logotipo, indicador y marca de agua.
-- Mantener el mensaje comercial únicamente en la columna izquierda.
-- Mostrar la imagen completa al 92% del panel, centrada y sin recortar las rampas del acoplado.
+- Usar la imagen como una única escena a ancho completo, sin separar texto e imagen en columnas.
+- Superponer el mensaje comercial sobre el espacio oscuro de la izquierda con un degradado de legibilidad.
+- Mantener el acoplado grande y completo en el sector derecho, evitando recortes laterales.
 
 ## Portada del book
 
