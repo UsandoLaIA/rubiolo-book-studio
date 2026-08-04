@@ -204,7 +204,7 @@ export default function Home() {
             return <article key={shot.id} className={`pdf-page ${index === 0 ? "pdf-cover" : ""}`}>
               <img src={shotImage(shot)} alt={shot.name} />
               <div className="pdf-shade" />
-              <div className="pdf-brand"><img src="/products/logo4.png" alt="Acoplados Rubiolo"/><span>{product.code}</span></div>
+              <div className="pdf-brand">{index > 0 && <img src="/products/logo4.png" alt="Acoplados Rubiolo"/>}<span>{product.code}</span></div>
               <div className="pdf-copy"><span>{shot.category} · 0{index + 1}</span><h2>{draft.title}</h2><p>{draft.body}</p></div>
               <footer><span>{product.name}</span><span>0{index + 1} / {String(selectedShots.length).padStart(2, "0")}</span></footer>
             </article>;
@@ -234,7 +234,7 @@ export default function Home() {
           {shot && draft && <section className="editor-canvas-wrap">
             <div className={`editor-page ${activePage === 0 ? "editor-cover" : ""}`}>
               <div className="editor-page-image"><img src={shotImage(shot)} alt={shot.name}/><div className="editor-image-gradient"/><span>{shot.category}</span></div>
-              <div className="editor-page-copy"><div className="editor-page-brand"><img src="/products/logo4.png" alt=""/><span>{product.code}</span></div><span className="page-kicker">ACOPLADOS RUBIOLO · 0{activePage + 1}</span><h1>{draft.title}</h1><p>{draft.body}</p><dl><div><dt>Dimensiones</dt><dd>{product.dimensions}</dd></div><div><dt>Capacidad</dt><dd>{product.capacity}</dd></div><div><dt>Aplicación</dt><dd>{primaryContext}</dd></div></dl></div>
+              <div className="editor-page-copy"><div className="editor-page-brand">{activePage > 0 && <img src="/products/logo4.png" alt=""/>}<span>{product.code}</span></div><span className="page-kicker">{shot.category} · 0{activePage + 1}</span><h1>{draft.title}</h1><p>{draft.body}</p><dl><div><dt>Dimensiones</dt><dd>{product.dimensions}</dd></div><div><dt>Capacidad</dt><dd>{product.capacity}</dd></div><div><dt>Aplicación</dt><dd>{primaryContext}</dd></div></dl></div>
               <div className="page-number">0{activePage + 1}<span>/{String(selectedShots.length).padStart(2, "0")}</span></div>
             </div>
             <div className="canvas-note"><i />Borrador generado a partir de referencias e información declarada por el vendedor</div>

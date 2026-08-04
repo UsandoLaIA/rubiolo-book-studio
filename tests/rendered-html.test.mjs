@@ -56,7 +56,11 @@ test("keeps the complete six-step flow and editorial draft in the client", async
   assert.match(page, /setMode\("generating"\)/);
   assert.match(page, /setMode\("book"\)/);
   assert.match(page, /setMode\("pdf"\)/);
+  assert.match(page, /index > 0 && <img/);
+  assert.match(page, /activePage > 0 && <img/);
+  assert.match(page, /\{shot\.category\} · 0\{activePage \+ 1\}/);
   assert.match(layout, /summary_large_image/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   await access(new URL("../public/og.png", import.meta.url));
+  await access(new URL("../public/hero-technical-clean.png", import.meta.url));
 });
