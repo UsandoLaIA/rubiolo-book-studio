@@ -1,16 +1,20 @@
 # Rubiolo Book Studio
 
-Webapp conceptual para configurar acoplados Rubiolo y generar un borrador visual de un book comercial. La demo permite elegir producto, materiales, movilidad, contextos, características verificadas, composiciones y editar una presentación simulada.
+Demo pública para configurar acoplados Rubiolo y simular la creación de un book comercial. Permite elegir producto, materiales, movilidad, contextos, características y composiciones, y editar una presentación visual.
 
-> Estado: demo navegable. La generación de imágenes, la persistencia, la billetera y la exportación PDF son simulaciones de interfaz.
+> La generación de imágenes, la persistencia, la billetera y la exportación PDF son simulaciones de interfaz.
 
-## Requisitos
+## Demo
 
-- Node.js 22
-- npm 10 o posterior
-- Docker 25 o posterior, solamente para probar el despliegue en contenedor
+La versión publicada está disponible en:
+
+<https://usandolaia.github.io/rubiolo-book-studio/>
+
+Cada actualización de `main` se verifica y publica automáticamente mediante GitHub Actions.
 
 ## Desarrollo local
+
+Requisitos: Node.js 22 y npm 10 o posterior.
 
 ```bash
 npm ci
@@ -25,95 +29,58 @@ Abrir `http://localhost:3000`.
 npm run check
 ```
 
-El comando ejecuta lint, pruebas de contrato y build de producción.
+Este comando ejecuta lint, pruebas de contrato, exportación estática y validación del contenido generado en `out/`.
 
-## Ejecución de producción sin Docker
+Para reproducir localmente el prefijo utilizado por GitHub Pages en PowerShell:
 
-```bash
-npm ci
-npm run build
-npm start
+```powershell
+$env:GITHUB_ACTIONS = "true"
+npm run check
+Remove-Item Env:GITHUB_ACTIONS
 ```
 
-El servidor usa el puerto indicado por `PORT`; Next.js utiliza `3000` por defecto.
+## Publicación en GitHub Pages
 
-## Docker
+El workflow `.github/workflows/deploy-pages.yml`:
+
+1. instala el lockfile con `npm ci`;
+2. ejecuta todas las verificaciones;
+3. sube el directorio `out/`;
+4. publica el artefacto en GitHub Pages.
+
+En el repositorio, la fuente de Pages debe configurarse una sola vez como **GitHub Actions** desde `Settings → Pages`.
+
+## Trabajo colaborativo
+
+Crear una rama por cambio y abrir un pull request hacia `main`:
 
 ```bash
-docker build -t rubiolo-book-studio .
-docker run --rm -p 3000:3000 rubiolo-book-studio
+git switch -c feature/nombre-del-cambio
+git add .
+git commit -m "feat: descripción del cambio"
+git push -u origin feature/nombre-del-cambio
 ```
 
-Comprobaciones:
-
-- App: `http://localhost:3000`
-- Salud: `http://localhost:3000/api/health`
-
-La imagen usa Next.js standalone, corre como usuario no root y contiene un `HEALTHCHECK`.
-
-## Publicar en GitHub
-
-1. Crear un repositorio vacío en GitHub, sin README ni `.gitignore` adicionales.
-2. Desde esta carpeta, revisar los archivos a publicar:
-
-   ```bash
-   git status
-   git remote -v
-   ```
-
-3. Si todavía no existe un remoto:
-
-   ```bash
-   git remote add origin https://github.com/ORGANIZACION/rubiolo-book-studio.git
-   ```
-
-4. Publicar `main`:
-
-   ```bash
-   git push -u origin main
-   ```
-
-El workflow de GitHub Actions valida automáticamente cada push y pull request.
-
-## Desplegar en Coolify
-
-Crear una **Application** conectada al repositorio GitHub y configurar:
-
-| Campo | Valor |
-|---|---|
-| Build Pack | Dockerfile |
-| Base Directory | `/` |
-| Dockerfile Location | `/Dockerfile` |
-| Ports Exposes | `3000` |
-| Healthcheck | provisto por el Dockerfile |
-| Dominio | el dominio o subdominio asignado al proyecto |
-
-El proceso escucha en `0.0.0.0:3000`, requisito para que el proxy de Coolify pueda alcanzarlo. No se necesitan variables de entorno para esta demo.
-
-Después del primer deploy:
-
-1. Confirmar que el contenedor figure como `healthy`.
-2. Abrir `/api/health` y comprobar una respuesta con `status: ok`.
-3. Revisar portada, catálogo y al menos un flujo completo hasta el editor.
-4. Activar despliegue automático desde `main` solo después de validar el primer release.
+El workflow de CI verifica los pull requests sin publicarlos. El despliegue ocurre solamente después de integrar el cambio en `main`.
 
 ## Estructura
 
 ```text
-app/                 interfaz y endpoint de salud
+app/                 interfaz de la demo
 public/              imágenes y recursos de producto
-tests/               pruebas de contrato de la demo
-.github/workflows/   integración continua
-Dockerfile           build y runtime para Coolify
-docs/                decisiones de producto y despliegue
+tests/               contratos y validación de la exportación
+.github/workflows/   CI y publicación de Pages
+docs/                decisiones y auditoría técnica
+out/                 sitio generado, no versionado
 ```
 
 ## Límites actuales
 
-- Todo el estado es temporal y se pierde al recargar.
+- Todo el estado se pierde al recargar.
 - Los archivos elegidos no se suben a un servidor.
 - Los créditos y valores monetarios son demostrativos.
 - Los renders y regeneraciones son simulados.
-- El botón de PDF muestra una previsualización; no genera un archivo real.
+- El botón de PDF no genera un archivo real.
+- GitHub Pages no puede alojar un backend, base de datos o trabajos de IA.
 
-El alcance y los criterios de aceptación están en `docs/deployment-pdr.md`; el dictamen técnico y los riesgos pendientes están en `docs/technical-audit.md`.
+El diseño de esta publicación está documentado en `docs/plans/2026-08-18-github-pages-design.md`.

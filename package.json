@@ -8,10 +8,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
     "test": "node --test tests/*.test.mjs",
+    "test:export": "node --test tests/export-output.verify.mjs",
     "lint": "eslint .",
-    "check": "npm run lint && npm test && npm run build"
+    "check": "npm run lint && npm test && npm run build && npm run test:export"
   },
   "dependencies": {
     "next": "16.3.1",

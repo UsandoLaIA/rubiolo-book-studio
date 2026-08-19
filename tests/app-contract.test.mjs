@@ -23,10 +23,16 @@ test("keeps the complete six-step product-book flow", async () => {
   }
 });
 
-test("ships the production assets and health endpoint", async () => {
-  const health = await readFile(new URL("../app/api/health/route.ts", import.meta.url), "utf8");
-  assert.match(health, /status: "ok"/);
-  assert.match(health, /rubiolo-book-studio/);
+test("is configured as a GitHub Pages static export", async () => {
+  const config = await readFile(new URL("../next.config.ts", import.meta.url), "utf8");
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const workflow = await readFile(new URL("../.github/workflows/deploy-pages.yml", import.meta.url), "utf8");
+
+  assert.match(config, /output: "export"/);
+  assert.match(config, /\/rubiolo-book-studio/);
+  assert.match(page, /assetPath/);
+  assert.match(workflow, /actions\/deploy-pages@v4/);
+  assert.match(workflow, /path: \.\/out/);
 
   for (const asset of [
     "../public/hero-technical-clean.png",
