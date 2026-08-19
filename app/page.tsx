@@ -121,12 +121,7 @@ export default function Home() {
   const wallet = 1200;
 
   useEffect(() => {
-    if (!compatibleVehicles.some((item) => item.name === vehicle)) setVehicle(compatibleVehicles[0].name);
-  }, [compatibleVehicles, vehicle]);
-
-  useEffect(() => {
     if (mode !== "generating") return;
-    setProgress(8);
     const values = [27, 49, 68, 84, 96, 100];
     const timers = values.map((value, index) => window.setTimeout(() => setProgress(value), 420 * (index + 1)));
     const done = window.setTimeout(() => { setActivePage(0); setMode("book"); }, 3250);
@@ -163,6 +158,7 @@ export default function Home() {
     selectedShots.forEach((shot) => { nextDrafts[shot.id] = { title: shot.title, body: shot.body, instruction: "" }; });
     setDrafts(nextDrafts);
     setImageOffsets({});
+    setProgress(8);
     setMode("generating");
   }
 

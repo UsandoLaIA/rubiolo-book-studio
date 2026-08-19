@@ -1,100 +1,119 @@
-# vinext-starter
+# Rubiolo Book Studio
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+Webapp conceptual para configurar acoplados Rubiolo y generar un borrador visual de un book comercial. La demo permite elegir producto, materiales, movilidad, contextos, características verificadas, composiciones y editar una presentación simulada.
 
-## Prerequisites
+> Estado: demo navegable. La generación de imágenes, la persistencia, la billetera y la exportación PDF son simulaciones de interfaz.
 
-- Node.js `>=22.13.0`
+## Requisitos
 
-## Quick Start
+- Node.js 22
+- npm 10 o posterior
+- Docker 25 o posterior, solamente para probar el despliegue en contenedor
+
+## Desarrollo local
 
 ```bash
-npm install
+npm ci
 npm run dev
+```
+
+Abrir `http://localhost:3000`.
+
+## Verificación
+
+```bash
+npm run check
+```
+
+El comando ejecuta lint, pruebas de contrato y build de producción.
+
+## Ejecución de producción sin Docker
+
+```bash
+npm ci
 npm run build
+npm start
 ```
 
-This starter does not use `wrangler.jsonc`.
+El servidor usa el puerto indicado por `PORT`; Next.js utiliza `3000` por defecto.
 
-## Included Shape
+## Docker
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.
-
-The user ID is stable for the same user on the same Site and different across Sites. Email and name are intended for display or contact purposes.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const userId = requestHeaders.get("oai-authenticated-user-id");
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```bash
+docker build -t rubiolo-book-studio .
+docker run --rm -p 3000:3000 rubiolo-book-studio
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+Comprobaciones:
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+- App: `http://localhost:3000`
+- Salud: `http://localhost:3000/api/health`
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+La imagen usa Next.js standalone, corre como usuario no root y contiene un `HEALTHCHECK`.
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+## Publicar en GitHub
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
+1. Crear un repositorio vacío en GitHub, sin README ni `.gitignore` adicionales.
+2. Desde esta carpeta, revisar los archivos a publicar:
 
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
+   ```bash
+   git status
+   git remote -v
+   ```
 
-## Useful Commands
+3. Si todavía no existe un remoto:
 
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
+   ```bash
+   git remote add origin https://github.com/ORGANIZACION/rubiolo-book-studio.git
+   ```
 
-## Learn More
+4. Publicar `main`:
 
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+   ```bash
+   git push -u origin main
+   ```
+
+El workflow de GitHub Actions valida automáticamente cada push y pull request.
+
+## Desplegar en Coolify
+
+Crear una **Application** conectada al repositorio GitHub y configurar:
+
+| Campo | Valor |
+|---|---|
+| Build Pack | Dockerfile |
+| Base Directory | `/` |
+| Dockerfile Location | `/Dockerfile` |
+| Ports Exposes | `3000` |
+| Healthcheck | provisto por el Dockerfile |
+| Dominio | el dominio o subdominio asignado al proyecto |
+
+El proceso escucha en `0.0.0.0:3000`, requisito para que el proxy de Coolify pueda alcanzarlo. No se necesitan variables de entorno para esta demo.
+
+Después del primer deploy:
+
+1. Confirmar que el contenedor figure como `healthy`.
+2. Abrir `/api/health` y comprobar una respuesta con `status: ok`.
+3. Revisar portada, catálogo y al menos un flujo completo hasta el editor.
+4. Activar despliegue automático desde `main` solo después de validar el primer release.
+
+## Estructura
+
+```text
+app/                 interfaz y endpoint de salud
+public/              imágenes y recursos de producto
+tests/               pruebas de contrato de la demo
+.github/workflows/   integración continua
+Dockerfile           build y runtime para Coolify
+docs/                decisiones de producto y despliegue
+```
+
+## Límites actuales
+
+- Todo el estado es temporal y se pierde al recargar.
+- Los archivos elegidos no se suben a un servidor.
+- Los créditos y valores monetarios son demostrativos.
+- Los renders y regeneraciones son simulados.
+- El botón de PDF muestra una previsualización; no genera un archivo real.
+
+El alcance y los criterios de aceptación están en `docs/deployment-pdr.md`; el dictamen técnico y los riesgos pendientes están en `docs/technical-audit.md`.

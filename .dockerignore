@@ -1,0 +1,13 @@
+.git
+.github
+.next
+node_modules
+dist
+work
+outputs
+.wrangler
+.env*
+npm-debug.log*
+README.md
+docs
+tests
